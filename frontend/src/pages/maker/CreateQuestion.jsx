@@ -90,6 +90,26 @@ const QuestionPaperDetailsInputs = ({
         />
       </div>
     </div>
+    <div className="mt-4 flex gap-4">
+      {formData.questionPaperFile?.url && (
+        <button
+          type="button"
+          onClick={() => window.open(formData.questionPaperFile.url, "_blank")}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition font-semibold"
+        >
+          View Question Paper
+        </button>
+      )}
+      {formData.solutionPaperFile?.url && (
+        <button
+          type="button"
+          onClick={() => window.open(formData.solutionPaperFile.url, "_blank")}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition font-semibold"
+        >
+          Solution
+        </button>
+      )}
+    </div>
   </SectionWrapper>
 );
 
@@ -414,6 +434,8 @@ export default function CreateQuestion() {
     unit: "",
     questionPaper: "",
     questionPaperYear: "",
+    questionPaperFile: null,
+    solutionPaperFile: null,
     questionNumber: "",
     FrequentlyAsked: false,
     questionText: "",
@@ -538,6 +560,8 @@ export default function CreateQuestion() {
         course: "",
         subject: "",
         questionPaperYear: "",
+        questionPaperFile: null,
+        solutionPaperFile: null,
       }));
       return;
     }
@@ -558,6 +582,8 @@ export default function CreateQuestion() {
         course: selectedPaper?.course?.title || "",
         subject: selectedPaper?.subject || "",
         questionPaperYear: selectedPaper?.questionPaperYear || "",
+        questionPaperFile: selectedPaper?.questionPaperFile || null,
+        solutionPaperFile: selectedPaper?.solutionPaperFile || null,
       }));
     } catch (err) {
       console.error("Failed to fetch question paper details:", err);
