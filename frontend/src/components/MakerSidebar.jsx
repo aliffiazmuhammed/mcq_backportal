@@ -17,8 +17,8 @@ const menuItems = [
   { name: "Create Question", path: "/maker/create", icon: HiOutlinePencilAlt },
   { name: "Drafts", path: "/maker/drafts", icon: HiOutlineDocumentText },
   { name: "Submitted", path: "/maker/submitted", icon: HiOutlineCloudUpload },
-  { name: "Available PDFs", path: "/maker/availabe-pdfs", icon: HiOutlineCollection },
-  { name: "Claimed PDFs", path: "/maker/claimed-pdfs", icon: HiOutlineClipboardList },
+  { name: "Available Question Papers", path: "/maker/availabe-pdfs", icon: HiOutlineCollection },
+  { name: "Claimed Question Papers", path: "/maker/claimed-pdfs", icon: HiOutlineClipboardList },
 ];
 
 const NavItem = ({ item, isOpen }) => {
