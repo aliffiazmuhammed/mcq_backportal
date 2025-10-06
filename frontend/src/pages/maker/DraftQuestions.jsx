@@ -198,56 +198,72 @@ export default function DraftQuestions() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDrafts.map((q) => (
-              <div
-                key={q._id}
-                className="bg-white rounded-lg shadow-md border border-transparent hover:border-blue-500 transition-all duration-300 flex flex-col"
-              >
-                <div className="p-5 flex-grow">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center">
+          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      checked={selected.length > 0 && selected.length === filteredDrafts.length}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Question
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Course
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Subject
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Last Updated
+                  </th>
+                  <th scope="col" className="relative px-6 py-3">
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredDrafts.map((q) => (
+                  <tr key={q._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         checked={selected.includes(q._id)}
                         onChange={() => handleSelect(q._id)}
-                        className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <div className="ml-3">
-                        <p className="font-semibold text-sm text-gray-500">
-                          {q.subject || "No Subject"}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Updated: {new Date(q.updatedAt).toLocaleDateString()}
-                        </p>
+                    </td>
+                    <td className="px-6 py-4 max-w-sm">
+                      <div className="text-sm text-gray-900 truncate">
+                        <ContentDisplay content={q.question} />
                       </div>
-                    </div>
-                    <span className="text-xs font-medium bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-                      Draft
-                    </span>
-                  </div>
-                  <div className="font-semibold text-gray-800">
-                    <ContentDisplay content={q.question} />
-                  </div>
-                  <div className="text-sm text-gray-500 mt-3 space-y-1">
-                    <p>
-                      <b>Course:</b> {q.course || "N/A"}
-                    </p>
-                    <p>
-                      <b>Chapter:</b> {q.chapter || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-3 border-t text-right rounded-b-lg">
-                  <button
-                    onClick={() => navigate(`/maker/create/${q._id}`)}
-                    className="bg-yellow-500 text-white px-4 py-1.5 rounded-md hover:bg-yellow-600 font-semibold text-sm transition"
-                  >
-                    Edit Draft
-                  </button>
-                </div>
-              </div>
-            ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{q.course?.title || "N/A"}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{q.subject || "N/A"}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{new Date(q.updatedAt).toLocaleDateString()}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => navigate(`/maker/create/${q._id}`)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

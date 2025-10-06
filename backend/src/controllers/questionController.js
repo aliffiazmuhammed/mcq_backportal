@@ -211,7 +211,9 @@ const getDraftQuestions = async (req, res) => {
         const drafts = await Question.find({
             maker: userId,
             status: "Draft",
-        }).sort({ updatedAt: -1 }); // Sort by most recently updated
+        })
+        .populate("course", "title") // Populate the course title
+        .sort({ updatedAt: -1 }); // Sort by most recently updated
 
         // No mapping needed; the full object contains all necessary data.
         res.json(drafts);
@@ -421,6 +423,7 @@ const getClaimedPapers = async (req, res) => {
         // matches the currently logged-in maker's ID.
         const claimedPapers = await QuestionPaper.find({ usedBy: makerId })
             .populate("uploadedBy", "name") // Optional: gets the name of the admin who uploaded it
+            .populate("course", "title") // Also populate the course title
             .sort({ updatedAt: -1 });      // Shows the most recently claimed/updated papers first
 
         res.json(claimedPapers);

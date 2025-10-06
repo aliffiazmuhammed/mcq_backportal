@@ -29,7 +29,7 @@ export default function ClaimedPdfsPage() {
     };
     fetchClaimedPdfs();
   }, []);
-
+console.log(claimedPapers)
   // Client-side search filtering
   const filteredPapers = claimedPapers.filter((paper) =>
     paper.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -63,9 +63,30 @@ export default function ClaimedPdfsPage() {
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-100">
               <tr>
-                <th className="p-4">Paper Name</th>
-                <th className="p-4 text-center">View Files</th>
-                <th className="p-4 text-center">Actions</th>
+                <th scope="col" className="px-6 py-3">
+                  Paper Name
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Course
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Subject
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Year
+                </th>
+                <th scope="col" className="px-6 py-3 text-center">
+                  No. of Questions
+                </th>
+                <th scope="col" className="px-6 py-3 text-center">
+                  Question PDF
+                </th>
+                <th scope="col" className="px-6 py-3 text-center">
+                  Solution PDF
+                </th>
+                <th scope="col" className="px-6 py-3 text-center">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -74,48 +95,55 @@ export default function ClaimedPdfsPage() {
                   key={paper._id}
                   className="bg-white border-b hover:bg-gray-50"
                 >
-                  <td className="p-4 font-medium text-gray-900">
+                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     {paper.name}
                   </td>
-                  {/* --- UPDATED: View Files Column --- */}
-                  <td className="p-4">
-                    <div className="flex justify-center items-center gap-3">
-                      {paper.questionPaperFile?.url ? (
-                        <a
-                          href={paper.questionPaperFile.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-blue-100 text-blue-700 font-semibold px-3 py-1 rounded-full hover:bg-blue-200 transition-colors text-xs"
-                        >
-                          View Question
-                        </a>
-                      ) : (
-                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-500">
-                          No Question File
-                        </span>
-                      )}
-
-                      {paper.solutionPaperFile?.url ? (
-                        <a
-                          href={paper.solutionPaperFile.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-green-100 text-green-800 font-semibold px-3 py-1 rounded-full hover:bg-green-200 transition-colors text-xs"
-                        >
-                          View Solution
-                        </a>
-                      ) : (
-                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-500">
-                          No Solution File
-                        </span>
-                      )}
-                    </div>
+                  <td className="px-6 py-4">
+                    {paper.course?.title || "N/A"}
                   </td>
-                  {/* --- UPDATED: Actions Column --- */}
-                  <td className="p-4 text-center">
+                  <td className="px-6 py-4">{paper.subject || "N/A"}</td>
+                  <td className="px-6 py-4">
+                    {paper.questionPaperYear || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {paper.numberOfQuestions || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {paper.questionPaperFile ? (
+                      <a
+                        href={paper.questionPaperFile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-green-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
+                      >
+                        View
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 italic">
+                        Not Available
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {paper.solutionPaperFile ? (
+                      <a
+                        href={paper.solutionPaperFile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-indigo-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors"
+                      >
+                        View
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 italic">
+                        Not Available
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-center">
                     <button
-                      onClick={() => navigate("/maker/create")} // Navigates to the page for creating questions
-                      className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors text-xs"
+                      onClick={() => navigate(`/maker/create?questionPaper=${paper._id}`)}
+                      className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                     >
                       Create Question
                     </button>
@@ -124,7 +152,7 @@ export default function ClaimedPdfsPage() {
               ))}
               {filteredPapers.length === 0 && (
                 <tr>
-                  <td colSpan="3" className="text-center p-10 text-gray-500">
+                  <td colSpan="8" className="text-center p-10 text-gray-500">
                     You have not claimed any papers yet, or no papers match your
                     search.
                   </td>

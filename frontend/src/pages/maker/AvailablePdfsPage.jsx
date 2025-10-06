@@ -27,7 +27,6 @@ export default function AvailablePdfsPage() {
       setLoading(false);
     }
   };
-console.log(papers)
   useEffect(() => {
     fetchAvailablePdfs();
   }, []);
@@ -62,7 +61,7 @@ console.log(papers)
         err.response?.data?.message ||
           "Failed to take this paper. It might have been taken by another user."
       );
-      fetchAvailablePdfs(); // Refresh the list
+      fetchAvailablePdfs();
     } finally {
       setActionInProgress(null);
     }
@@ -122,6 +121,9 @@ console.log(papers)
                     Year
                   </th>
                   <th scope="col" className="px-6 py-3 text-center">
+                    No. of Questions
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-center">
                     Question PDF
                   </th>
                   <th scope="col" className="px-6 py-3 text-center">
@@ -149,9 +151,12 @@ console.log(papers)
                       {paper.questionPaperYear || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-center">
+                      {paper.numberOfQuestions || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-center">
                       {paper.questionPaperFile ? (
                         <a
-                          href={paper.questionPaperFile}
+                          href={paper.questionPaperFile.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="bg-green-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
@@ -167,7 +172,7 @@ console.log(papers)
                     <td className="px-6 py-4 text-center">
                       {paper.solutionPaperFile ? (
                         <a
-                          href={paper.solutionPaperFile}
+                          href={paper.solutionPaperFile.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="bg-indigo-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors"
@@ -195,7 +200,7 @@ console.log(papers)
                 ))}
                 {filteredPapers.length === 0 && (
                   <tr>
-                    <td colSpan="7" className="text-center p-10 text-gray-500">
+                    <td colSpan="8" className="text-center p-10 text-gray-500">
                       {papers.length > 0
                         ? "No papers match your search."
                         : "There are currently no available papers."}

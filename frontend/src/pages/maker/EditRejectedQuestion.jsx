@@ -503,6 +503,16 @@ export default function EditRejectedQuestion() {
           });
 
           const q = res.data;
+
+          if (q.questionPaper) {
+            setQuestionPapers(prev => {
+              if (prev.some(p => p._id === q.questionPaper._id)) {
+                return prev;
+              }
+              return [...prev, q.questionPaper];
+            });
+          }
+
           const choicesForForm =
             q.options?.length > 0
               ? q.options.map((opt) => ({

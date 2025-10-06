@@ -502,6 +502,7 @@ export default function CreateQuestion() {
           });
 
           const q = res.data;
+
           const choicesForForm =
             q.options && q.options.length > 0
               ? q.options.map((opt) => ({
@@ -702,6 +703,16 @@ export default function CreateQuestion() {
 
  const handleSubmit = useCallback(
    async (type) => {
+    if (!formData.questionPaper) {
+      toast.error("Please select a question paper.");
+      return;
+    }
+
+    if (!formData.questionText && !formData.questionImage) {
+      toast.error("Please provide question text or an image.");
+      return;
+    }
+
      setLoading(true);
      const toastId = toast.loading(`Submitting question as ${type}...`);
      try {
