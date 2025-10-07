@@ -66,8 +66,8 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-//  Delete user
-const deleteUser = async (req, res) => {
+//  toggle User Status
+const toggleUserStatus = async (req, res) => {
     try {
         const { role, id } = req.params;
 
@@ -76,13 +76,18 @@ const deleteUser = async (req, res) => {
         }
 
         const Model = role === "maker" ? Maker : Checker;
-        const user = await Model.findByIdAndDelete(id);
+        const user = await Model.findById(id);
 
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        return res.json({ message: `${role.charAt(0).toUpperCase() + role.slice(1)} deleted successfully` });
+        user.isActive = !user.isActive;
+        await user.save();
+
+        const status = user.isActive ? "activated" : "deactivated";
+
+        return res.json({ message: `${role.charAt(0).toUpperCase() + role.slice(1)} ${status} successfully` });
     } catch (err) {
-        console.error("Admin deleteUser error:", err);
+        console.error("Admin toggleUserStatus error:", err);
         return res.status(500).json({ message: "Server error" });
     }
 };
@@ -531,4 +536,4 @@ const getAllCourses = async (req, res) => {
     }
 };
 
-export { createUser, getAllUsers, deleteUser, uploadPdfs ,getAllPdfs,deletePdf,getDashboardStats,createCourse,getAllCourses };
+export { createUser, getAllUsers, uploadPdfs ,getAllPdfs,deletePdf,getDashboardStats,createCourse,getAllCourses ,toggleUserStatus};

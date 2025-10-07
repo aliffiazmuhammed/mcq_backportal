@@ -15,6 +15,11 @@ const handleLogin = async (Model, type, req, res) => {
             return res.status(400).json({ message: "Invalid email or password" });
         }
 
+        // Check if user is active
+        if (type !== "admin" && !user.isActive) {
+            return res.status(401).json({ message: "Your account has been deactivated. Please contact an administrator." });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid email or password" });

@@ -1,6 +1,6 @@
 import express from "express";
 import { protect, authorize } from "../middlewares/authmiddleware.js";
-import { createUser, getAllUsers, deleteUser ,uploadPdfs ,getAllPdfs , deletePdf , getDashboardStats,createCourse ,getAllCourses} from "../controllers/adminController.js";
+import { createUser, getAllUsers, toggleUserStatus ,uploadPdfs ,getAllPdfs , deletePdf , getDashboardStats,createCourse ,getAllCourses} from "../controllers/adminController.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -17,7 +17,7 @@ router.post("/create-user", createUser);
 router.get("/users", getAllUsers);
 
 // Delete a user
-router.delete("/user/:role/:id", deleteUser);
+router.patch("/user/:role/:id/status", toggleUserStatus);
 
 //upload pdf function
 router.post(

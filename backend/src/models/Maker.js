@@ -35,6 +35,10 @@ const makerSchema = new mongoose.Schema(
             minlength: 6,
             select: false,
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
 
         // --- UPDATED FIELDS: Now logs each action with a timestamp ---
 
