@@ -74,6 +74,10 @@ const QuestionPaperSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        approvedQuestionCount: {
+            type: Number,
+            default: 0,
+        },
 
         // --- Usage Tracking Field ---
         usedBy: {

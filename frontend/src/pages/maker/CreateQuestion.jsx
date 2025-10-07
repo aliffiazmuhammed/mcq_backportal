@@ -484,7 +484,10 @@ export default function CreateQuestion() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setQuestionPapers(res.data);
+        const incompletePapers = res.data.filter(
+          (paper) => paper.approvedQuestionCount < paper.numberOfQuestions
+        );
+        setQuestionPapers(incompletePapers);
       } catch (err) {
         console.error("Failed to fetch claimed question papers:", err);
       }

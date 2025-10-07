@@ -78,6 +78,15 @@ const approveQuestion = async (req, res) => {
             checkerComments: "",
         }, { new: true, session });
 
+        // Increment approved question count if status changed to Approved
+        if (questionToApprove.status !== 'Approved') {
+            await QuestionPaper.findByIdAndUpdate(
+                questionToApprove.questionPaper,
+                { $inc: { approvedQuestionCount: 1 } },
+                { session }
+            );
+        }
+
         // Log this approval for the current checker and the maker
         await updateActionLog(Checker, currentCheckerId, 'checkeracceptedquestion', questionId, session);
         await updateActionLog(Maker, makerId, 'makeracceptedquestions', questionId, session);
@@ -111,14 +120,24 @@ const rejectQuestion = async (req, res) => {
             throw new Error("Comments are required for rejection.");
         }
 
+        const questionToReject = await Question.findById(id).session(session);
+        if (!questionToReject) {
+            throw new Error("Question not found.");
+        }
+
         const question = await Question.findByIdAndUpdate(id, {
             status: "Rejected",
             checkerComments: comments,
             checkedBy: checkerId
         }, { new: true, session });
 
-        if (!question) {
-            throw new Error("Question not found.");
+        // Decrement approved question count if status was Approved
+        if (questionToReject.status === 'Approved') {
+            await QuestionPaper.findByIdAndUpdate(
+                questionToReject.questionPaper,
+                { $inc: { approvedQuestionCount: -1 } },
+                { session }
+            );
         }
 
         const questionId = question._id;
@@ -187,7 +206,7 @@ const bulkApproveQuestions = async (req, res) => {
         // 2. Find all valid questions to get their makers, original checkers, and comments
         const questionsToApprove = await Question.find(
             { _id: { $in: ids }, status: "Pending" },
-            'maker checkedBy makerComments' // Projection to get all needed fields
+            'maker checkedBy makerComments questionPaper' // Projection to get all needed fields
         ).session(session);
 
         if (questionsToApprove.length === 0) {
@@ -206,6 +225,24 @@ const bulkApproveQuestions = async (req, res) => {
 
         // 4. Prepare for concurrent log updates
         const updatePromises = [];
+
+        const paperCounts = questionsToApprove.reduce((acc, q) => {
+            if (q.questionPaper) {
+                const paperId = q.questionPaper.toString();
+                acc[paperId] = (acc[paperId] || 0) + 1;
+            }
+            return acc;
+        }, {});
+
+        const bulkUpdatePromises = Object.entries(paperCounts).map(([paperId, count]) =>
+            QuestionPaper.findByIdAndUpdate(
+                paperId,
+                { $inc: { approvedQuestionCount: count } },
+                { session }
+            )
+        );
+
+        updatePromises.push(...bulkUpdatePromises);
 
         for (const question of questionsToApprove) {
             const makerId = question.maker;

@@ -120,7 +120,7 @@ export default function AvailablePdfsPage() {
                     Year
                   </th>
                   <th scope="col" className="px-6 py-3 text-center">
-                    No. of Questions
+                    Progress
                   </th>
                   <th scope="col" className="px-6 py-3 text-center">
                     Question PDF
@@ -150,7 +150,7 @@ export default function AvailablePdfsPage() {
                       {paper.questionPaperYear || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      {paper.numberOfQuestions || "N/A"}
+                      {`${paper.approvedQuestionCount} / ${paper.numberOfQuestions}`}
                     </td>
                     <td className="px-6 py-4 text-center">
                       {paper.questionPaperFile ? (
