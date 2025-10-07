@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { host } from "../../utils/APIRoutes";
-
+import Loader from "../../components/Loader";
 // --- Reusable Components ---
 
 const ContentDisplay = ({ content, onImageClick }) => {
@@ -135,11 +135,7 @@ export default function SubmittedQuestions() {
         </div>
 
         {/* Main Content Area */}
-        {loading ? (
-          <div className="flex justify-center items-center h-60">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : filteredQuestions.length === 0 ? (
+        {loading ? < Loader></Loader> : filteredQuestions.length === 0 ? (
           <p className="text-center text-gray-500 py-10">
             No questions match your filters. 🧐
           </p>

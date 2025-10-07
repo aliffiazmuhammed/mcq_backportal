@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { host } from "../../utils/APIRoutes";
+import Loader from "../../components/Loader";
+
 // --- Reusable Modal Components ---
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, message }) => {
@@ -243,11 +245,7 @@ export default function CheckerReview() {
           </div>
         )}
 
-        {loading ? (
-          <div className="text-center py-10">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          </div>
-        ) : (
+        {loading ? <Loader></Loader> : (
           <div className="bg-white shadow-md rounded-lg overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-600">
               <thead className="text-xs text-gray-700 uppercase bg-gray-100">

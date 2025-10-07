@@ -4,6 +4,7 @@ import Modal from "https://esm.sh/react-modal";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { host } from "../../utils/APIRoutes";
+import Loader from "../../components/Loader"; // Import the Loader component
 
 // --- Utility Functions ---
 

@@ -32,16 +32,14 @@ import MakerDashboard from "./pages/maker/MakerDashboard";
 import CheckerDashboard from "./pages/checker/CheckerDashboard";
 import LoginPage from "./pages/login/LoginPage";
 import { Toaster } from "react-hot-toast";
-
+import Loader from "./components/Loader";
 function PrivateRoute({ children, role }) {
   const { user, loading } = useAuth();
 
   // Show loader while checking auth
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
+      <Loader></Loader>
     );
   }
 

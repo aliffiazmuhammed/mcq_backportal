@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import Loader from "../../components/Loader";
 // --- Reusable Components ---
 
 const StatCard = ({ title, value, icon, color }) => (
@@ -150,11 +150,7 @@ export default function MakerDashboard() {
         </div>
       )}
 
-      {loading ? (
-        <div className="text-center py-20">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
-      ) : (
+      {loading ? <Loader></Loader> : (
         <>
           {/* Stat Cards - UPDATED with 6 cards in a responsive grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

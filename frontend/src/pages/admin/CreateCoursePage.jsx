@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // The local import for 'host' has been inlined to prevent compilation errors.
 import { host } from "../../utils/APIRoutes";
+import Loader from "../../components/Loader";
 
 // --- Main Component ---
 export default function CreateCoursePage() {
@@ -65,11 +66,7 @@ export default function CreateCoursePage() {
           Fill in the details below to add a new course to the system.
         </p>
 
-        {loading && (
-          <div className="absolute inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50 rounded-xl">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        )}
+        {loading && <Loader />}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

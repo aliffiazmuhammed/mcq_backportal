@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import getCroppedImg from "../../utils/cropImage";
 import ReactCrop, { centerCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import Loader from "../../components/Loader"; // Import the Loader component
 
 // Helper to get the correct URL for image previews
 const getImagePreviewUrl = (image) => {
@@ -825,7 +826,7 @@ export default function CreateQuestion() {
 
         {loading && (
           <div className="absolute inset-0 bg-white bg-opacity-80 flex justify-center items-center z-40 rounded-xl">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <Loader />
           </div>
         )}
 

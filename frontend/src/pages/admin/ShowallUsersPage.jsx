@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { host } from "../../utils/APIRoutes";
-
+import Loader from "../../components/Loader";
 function ShowAllUsersPage() {
   const [users, setUsers] = useState({ makers: [], checkers: [] });
   const [loading, setLoading] = useState(false);
@@ -64,11 +64,7 @@ function ShowAllUsersPage() {
     <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
       <h1 className="text-2xl font-bold mb-6 text-center">All Users</h1>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
+      {loading ? <Loader />: (
         <>
           {["makers", "checkers"].map((role) => (
             <div key={role} className="mb-6">

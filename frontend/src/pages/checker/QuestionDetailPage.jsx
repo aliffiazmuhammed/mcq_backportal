@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { host } from "../../utils/APIRoutes";
+import Loader from "../../components/Loader";
 
 // --- Reusable Modal Components ---
 
@@ -216,9 +217,7 @@ export default function QuestionDetailPage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <Loader></Loader>
     );
   if (error)
     return (

@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import Loader from "../../components/Loader";
 // --- Reusable Components ---
 const StatCard = ({ title, value, icon, color }) => (
   <div className="bg-white p-6 rounded-lg shadow-md flex items-center gap-4">
@@ -170,11 +170,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-20">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
-      ) : !dashboardData ? (
+      {loading ? <Loader></Loader> : !dashboardData ? (
         <div className="text-center py-20 text-red-500">
           Failed to load dashboard data.
         </div>

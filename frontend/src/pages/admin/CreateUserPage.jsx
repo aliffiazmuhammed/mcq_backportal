@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { host } from "../../utils/APIRoutes";
-
+import Loader from "../../components/Loader";
 function CreateUserPage() {
   const { user } = useAuth(); // Current admin user
   const [formData, setFormData] = useState({
@@ -59,9 +59,7 @@ function CreateUserPage() {
       <h1 className="text-2xl font-bold mb-6 text-center">Create New User</h1>
 
       {loading && (
-        <div className="absolute inset-0 bg-white bg-opacity-70 flex justify-center items-center z-50 rounded-lg">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <Loader />
       )}
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>

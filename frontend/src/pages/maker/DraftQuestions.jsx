@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { host } from "../../utils/APIRoutes";
-
+import Loader from "../../components/Loader";
 // --- Helper Components ---
 
 // A reusable component to display content that can be text, an image, or both.
@@ -185,11 +185,7 @@ export default function DraftQuestions() {
         )}
 
         {/* --- Main Content: Drafts Grid --- */}
-        {loading ? (
-          <div className="flex justify-center items-center h-60">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : filteredDrafts.length === 0 ? (
+        {loading ? <Loader></Loader>: filteredDrafts.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg shadow-md">
             <p className="text-xl text-gray-500">
               {search
