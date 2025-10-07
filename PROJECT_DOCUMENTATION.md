@@ -173,6 +173,7 @@ The core responsibility of the Checker is to review questions submitted by Maker
     *   If the question meets the quality standards, the Checker can approve it.
     *   This action changes the question's status to "Approved".
     *   Crucially, this action also increments the `approvedQuestionCount` on the corresponding `QuestionPaper` document, updating the progress tracker for that paper.
+    *   **False Rejection Logging:** The system includes a quality check on the review process itself. If a Maker resubmits a question that was previously rejected and marks it as "No corrections required," and a *different* Checker then approves it, the system logs a "false rejection" against the original Checker. This helps identify potential inconsistencies in the review process.
 *   **Reject a Question:**
     *   If a question is inaccurate or needs improvement, the Checker can reject it.
     *   Rejecting a question requires the Checker to provide comments, which are mandatory.
