@@ -173,7 +173,7 @@ const rejectQuestion = async (req, res) => {
 const getReviewedQuestions = async (req, res) => {
     try {
         const questions = await Question.find({
-            status: { $in: ["Approved", "Rejected"] }
+            status: { $in: ["Approved", "Rejected", "Finalised"] }
         })
             // Populate the maker's details
             .populate("maker", "name email")
@@ -348,8 +348,59 @@ const getCheckerDashboardStats = async (req, res) => {
 
         const { startDate, endDate } = getDateRange(timeframe, start, end);
 
-        // --- Single, Efficient Aggregation Pipeline ---
-        const aggregationResult = await Question.aggregate([
+        // --- Queries for Stats ---
+
+        // 1. Total questions (Approved + Pending) - Not timeframe dependent
+        const totalQuestions = await Question.countDocuments({
+            status: { $in: ["Approved", "Pending","Finalised"] }
+        });
+        console.log(totalQuestions)
+
+        // 2. Approved by this checker - Timeframe dependent
+        const checkerData = await Checker.aggregate([
+            { $match: { _id: checkerId } },
+            {
+                $project: {
+                    approvedCount: {
+                        $size: {
+                            $filter: {
+                                input: "$checkeracceptedquestion",
+                                as: "action",
+                                cond: {
+                                    $anyElementTrue: {
+                                        $map: {
+                                            input: "$$action.actionDates",
+                                            as: "date",
+                                            in: {
+                                                $and: [
+                                                    { $gte: ["$$date", startDate] },
+                                                    { $lte: ["$$date", endDate] }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ]);
+        const approvedByChecker = checkerData[0]?.approvedCount || 0;
+
+        // 3. Rejected by this checker - Not timeframe dependent
+        const rejectedByChecker = await Question.countDocuments({
+            checkedBy: checkerId,
+            status: "Rejected"
+        });
+
+        // 4. Total pending questions - Not timeframe dependent
+        const totalPending = await Question.countDocuments({
+            status: "Pending"
+        });
+
+        // --- Aggregation for Chart Data (remains the same) ---
+        const chartDataAggregation = await Question.aggregate([
             {
                 $match: {
                     $or: [
@@ -360,40 +411,6 @@ const getCheckerDashboardStats = async (req, res) => {
             },
             {
                 $facet: {
-                    // --- Card Statistics ---
-                    stats: [
-                        {
-                            $group: {
-                                _id: null,
-                                totalApproved: {
-                                    $sum: {
-                                        $cond: [{ $and: [{ $eq: ["$status", "Approved"] }, { $gte: ["$updatedAt", startDate] }, { $lte: ["$updatedAt", endDate] }] }, 1, 0]
-                                    }
-                                },
-                                totalRejected: {
-                                    $sum: {
-                                        $cond: [{ $and: [{ $eq: ["$status", "Rejected"] }, { $gte: ["$updatedAt", startDate] }, { $lte: ["$updatedAt", endDate] }] }, 1, 0]
-                                    }
-                                },
-                                totalNewlyPending: {
-                                    $sum: {
-                                        $cond: [{ $and: [{ $eq: ["$status", "Pending"] }, { $gte: ["$createdAt", startDate] }, { $lte: ["$createdAt", endDate] }] }, 1, 0]
-                                    }
-                                },
-                                approvedByChecker: {
-                                    $sum: {
-                                        $cond: [{ $and: [{ $eq: ["$status", "Approved"] }, { $eq: ["$checkedBy", checkerId] }, { $gte: ["$updatedAt", startDate] }, { $lte: ["$updatedAt", endDate] }] }, 1, 0]
-                                    }
-                                },
-                                rejectedByChecker: {
-                                    $sum: {
-                                        $cond: [{ $and: [{ $eq: ["$status", "Rejected"] }, { $eq: ["$checkedBy", checkerId] }, { $gte: ["$updatedAt", startDate] }, { $lte: ["$updatedAt", endDate] }] }, 1, 0]
-                                    }
-                                },
-                            }
-                        }
-                    ],
-                    // --- Chart Data ---
                     chartData: [
                         {
                             $project: {
@@ -432,18 +449,14 @@ const getCheckerDashboardStats = async (req, res) => {
             }
         ]);
 
-        const stats = aggregationResult[0].stats[0] || {};
-
-        const totalQuestionsForChecker = (stats.approvedByChecker || 0) + (stats.rejectedByChecker || 0) + (stats.totalNewlyPending || 0);
-
         res.json({
             stats: {
-                totalQuestions: totalQuestionsForChecker,
-                totalApproved: stats.totalApproved || 0,
-                totalRejected: stats.totalRejected || 0,
-                totalPending: stats.totalNewlyPending || 0, // Renamed for clarity
+                totalQuestions: totalQuestions,
+                totalApproved: approvedByChecker,
+                totalRejected: rejectedByChecker,
+                totalPending: totalPending,
             },
-            chartData: aggregationResult[0].chartData,
+            chartData: chartDataAggregation[0].chartData,
         });
 
     } catch (err) {
