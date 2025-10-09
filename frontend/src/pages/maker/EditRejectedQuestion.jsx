@@ -1,49 +1,15 @@
 import { useState, useCallback, useEffect } from "react";
-import Cropper from "https://esm.sh/react-easy-crop";
-import Modal from "https://esm.sh/react-modal";
+import Modal from "react-modal";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { host } from "../../utils/APIRoutes";
-import Loader from "../../components/Loader"; // Import the Loader component
+import getCroppedImg from "../../utils/cropImage";
+import ReactCrop, { centerCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import Loader from "../../components/Loader";
+import toast from "react-hot-toast";
 
 // --- Utility Functions ---
-
-function getCroppedImg(imageSrc, pixelCrop) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.src = imageSrc;
-    image.crossOrigin = "anonymous";
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = pixelCrop.width;
-      canvas.height = pixelCrop.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        reject(new Error("Could not get canvas context"));
-        return;
-      }
-      ctx.drawImage(
-        image,
-        pixelCrop.x,
-        pixelCrop.y,
-        pixelCrop.width,
-        pixelCrop.height,
-        0,
-        0,
-        pixelCrop.width,
-        pixelCrop.height
-      );
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error("Canvas is empty"));
-          return;
-        }
-        resolve(blob);
-      }, "image/jpeg");
-    };
-    image.onerror = (error) => reject(error);
-  });
-}
 
 const getImagePreviewUrl = (image) => {
   if (!image) return null;
@@ -62,11 +28,7 @@ const SectionWrapper = ({ title, children }) => (
   </fieldset>
 );
 
-const QuestionPaperDetailsInputs = ({
-  formData,
-  questionPapers,
-  onPaperSelect,
-}) => (
+const QuestionPaperDetailsInputs = ({ formData, questionPapers, onPaperSelect }) => (
   <SectionWrapper title="Question Paper Details">
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
@@ -127,16 +89,7 @@ const QuestionPaperDetailsInputs = ({
   </SectionWrapper>
 );
 
-const ContentInputSection = ({
-  label,
-  textName,
-  textValue,
-  imageValue,
-  onTextChange,
-  onFileChange,
-  onRemoveImage,
-  children,
-}) => {
+const ContentInputSection = ({ label, textName, textValue, imageValue, onTextChange, onFileChange, onRemoveImage, children }) => {
   const fileInputId = `${textName}-file-input`;
   return (
     <SectionWrapper title={label}>
@@ -183,16 +136,7 @@ const ContentInputSection = ({
   );
 };
 
-const ChoicesSection = ({
-  choices,
-  correctAnswer,
-  setFormData,
-  handleChoiceChange,
-  handleFileChange,
-  removeChoice,
-  addChoice,
-  onRemoveChoiceImage,
-}) => (
+const ChoicesSection = ({ choices, correctAnswer, setFormData, handleChoiceChange, handleFileChange, removeChoice, addChoice, onRemoveChoiceImage }) => (
   <SectionWrapper title="Answer Choices">
     <div className="space-y-4">
       {choices.map((choice, index) => {
@@ -292,13 +236,7 @@ const ChoicesSection = ({
   </SectionWrapper>
 );
 
-const ImageUploader = ({
-  label,
-  imageValue,
-  onFileChange,
-  onRemoveImage,
-  fieldName,
-}) => {
+const ImageUploader = ({ label, imageValue, onFileChange, onRemoveImage, fieldName }) => {
   const fileInputId = `${fieldName}-input`;
   return (
     <div>
@@ -340,12 +278,7 @@ const ImageUploader = ({
   );
 };
 
-const ReferenceImagesSection = ({
-  imageValue1,
-  imageValue2,
-  onFileChange,
-  onRemoveImage,
-}) => (
+const ReferenceImagesSection = ({ imageValue1, imageValue2, onFileChange, onRemoveImage }) => (
   <SectionWrapper title="Reference Images">
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <ImageUploader
@@ -366,67 +299,65 @@ const ReferenceImagesSection = ({
   </SectionWrapper>
 );
 
-const ImageCropModal = ({
-  modalState,
-  closeModal,
-  applyCrop,
-  crop,
-  setCrop,
-  zoom,
-  setZoom,
-  onCropComplete,
-}) => (
-  <Modal
-    isOpen={modalState.open}
-    onRequestClose={closeModal}
-    ariaHideApp={false}
-    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 p-4"
-    overlayClassName="fixed inset-0 z-50"
-  >
-    <div className="bg-white p-6 rounded-lg shadow-xl max-w-xl w-full relative">
-      <h2 className="text-2xl font-bold mb-4">Crop Image</h2>
-      {modalState.src && (
-        <div className="relative w-full h-80 bg-gray-200 rounded-md">
-          <Cropper
-            image={modalState.src}
-            crop={crop}
-            zoom={zoom}
-            aspect={4 / 3}
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={onCropComplete}
-          />
+const ImageCropModal = ({ modalState, closeModal, applyCrop, onCropComplete, onImageReady }) => {
+  const [crop, setCrop] = useState();
+
+  function onImageLoad(e) {
+    if (onImageReady) {
+      onImageReady(e.currentTarget);
+    }
+    const { width, height } = e.currentTarget;
+    const initialCrop = centerCrop(
+      {
+        unit: "%",
+        width: 90,
+        height: 90,
+      },
+      width,
+      height
+    );
+    setCrop(initialCrop);
+  }
+
+  return (
+    <Modal
+      isOpen={modalState.open}
+      onRequestClose={closeModal}
+      ariaHideApp={false}
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 p-4"
+      overlayClassName="fixed inset-0 z-50"
+    >
+      <div className="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full relative">
+        <h2 className="text-2xl font-bold mb-4">Crop Image</h2>
+        {modalState.src && (
+          <div style={{ maxHeight: "70vh", overflow: "auto" }}>
+            <ReactCrop
+              crop={crop}
+              onChange={(c, percentCrop) => setCrop(percentCrop)}
+              onComplete={(pixelCrop) => onCropComplete(null, pixelCrop)}
+            >
+              <img src={modalState.src} onLoad={onImageLoad} alt="Crop me" />
+            </ReactCrop>
+          </div>
+        )}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={closeModal}
+            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={applyCrop}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-semibold"
+          >
+            Apply Crop
+          </button>
         </div>
-      )}
-      <div className="flex items-center mt-4 space-x-3">
-        <label className="text-sm font-medium">Zoom</label>
-        <input
-          type="range"
-          min={1}
-          max={3}
-          step={0.1}
-          value={zoom}
-          onChange={(e) => setZoom(e.target.value)}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-        />
       </div>
-      <div className="mt-6 flex justify-end gap-3">
-        <button
-          onClick={closeModal}
-          className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 font-semibold"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={applyCrop}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-semibold"
-        >
-          Apply Crop
-        </button>
-      </div>
-    </div>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 const NotificationModal = ({ isOpen, message, onClose }) => {
   if (!isOpen) return null;
@@ -484,9 +415,8 @@ export default function EditRejectedQuestion() {
     type: "",
     index: null,
   });
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [imgElementForCrop, setImgElementForCrop] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({
     isOpen: false,
@@ -621,10 +551,24 @@ export default function EditRejectedQuestion() {
     setCropModal({ open: false, src: null, type: "", index: null });
 
   const applyCrop = useCallback(async () => {
-    if (!croppedAreaPixels) return;
+    if (!croppedAreaPixels || !imgElementForCrop) {
+      toast.error("Please make a crop selection.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const blob = await getCroppedImg(cropModal.src, croppedAreaPixels);
+      const scaleX = imgElementForCrop.naturalWidth / imgElementForCrop.width;
+      const scaleY = imgElementForCrop.naturalHeight / imgElementForCrop.height;
+
+      const correctedCrop = {
+        x: croppedAreaPixels.x * scaleX,
+        y: croppedAreaPixels.y * scaleY,
+        width: croppedAreaPixels.width * scaleX,
+        height: croppedAreaPixels.height * scaleY,
+      };
+
+      const blob = await getCroppedImg(cropModal.src, correctedCrop);
       const croppedFile = new File([blob], "cropped.jpg", {
         type: "image/jpeg",
       });
@@ -641,11 +585,12 @@ export default function EditRejectedQuestion() {
       }
       closeModal();
     } catch (error) {
-      console.error(error);
+      console.error("Failed to apply crop:", error);
+      toast.error("Could not apply crop.");
     } finally {
       setLoading(false);
     }
-  }, [cropModal, croppedAreaPixels]);
+  }, [cropModal, croppedAreaPixels, imgElementForCrop]);
 
   const handleRemoveImage = useCallback(
     (fieldName) => setFormData((prev) => ({ ...prev, [fieldName]: null })),
@@ -960,16 +905,13 @@ export default function EditRejectedQuestion() {
         message={notification.message}
         onClose={() => setNotification({ isOpen: false, message: "" })}
       />
-      <ImageCropModal
+      {cropModal.open && <ImageCropModal
         modalState={cropModal}
         closeModal={closeModal}
         applyCrop={applyCrop}
-        crop={crop}
-        setCrop={setCrop}
-        zoom={zoom}
-        setZoom={setZoom}
         onCropComplete={onCropComplete}
-      />
+        onImageReady={setImgElementForCrop}
+      />}
     </div>
   );
 }
