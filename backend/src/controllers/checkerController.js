@@ -173,7 +173,8 @@ const rejectQuestion = async (req, res) => {
 const getReviewedQuestions = async (req, res) => {
     try {
         const questions = await Question.find({
-            status: { $in: ["Approved", "Rejected", "Finalised"] }
+            status: { $in: ["Approved", "Rejected", "Finalised"] },
+            checkedBy: req.user._id
         })
             // Populate the maker's details
             .populate("maker", "name email")
