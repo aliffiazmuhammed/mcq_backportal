@@ -352,7 +352,7 @@ const getCheckerDashboardStats = async (req, res) => {
 
         // 1. Total questions (Approved + Pending) - Not timeframe dependent
         const totalQuestions = await Question.countDocuments({
-            status: { $in: ["Approved", "Pending","Finalised"] }
+            status: { $in: ["Approved", "Pending","Finalised","Rejected"] }
         });
         console.log(totalQuestions)
 
